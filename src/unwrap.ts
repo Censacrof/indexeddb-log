@@ -1,10 +1,14 @@
-interface Unwrappable<T> {
-  addEventListener: (ev: "success" | "error", listen: () => any) => any;
-  result: T;
-  error: unknown;
-}
+type AddEventListener = (ev: "success" | "error", listen: () => any) => any;
 
-export const unwrap = <T>(request: Unwrappable<T>): Promise<T> => {
+type Unwrappable<T> = {
+  addEventListener: AddEventListener;
+  result?: T;
+  error?: unknown;
+};
+
+export function unwrap(request: Unwrappable<undefined>): Promise<undefined>;
+export function unwrap<T>(request: Unwrappable<T>): Promise<T>;
+export function unwrap(request: Unwrappable<unknown>): Promise<unknown> {
   return new Promise((resolve, reject) => {
     request.addEventListener("success", () => {
       resolve(request.result);
@@ -14,4 +18,4 @@ export const unwrap = <T>(request: Unwrappable<T>): Promise<T> => {
       reject(request.error);
     });
   });
-};
+}
