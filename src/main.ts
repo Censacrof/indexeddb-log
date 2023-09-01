@@ -45,7 +45,7 @@ await log("ciao!!");
 
 
 
-const getAllLogs = async () => {
+const getAllLogs = () => {
   return new Promise((resolve) => {
     const transaction = db.transaction(["logs"], "readwrite");
 
