@@ -1,19 +1,20 @@
 import { unwrap } from "./unwrap";
 
-export {};
+export { };
 
-const request = window.indexedDB.open("MyTestDatabase", 3);
+const request = window.indexedDB.open("MyTestDatabase", 4);
 
 request.onupgradeneeded = async (event) => {
   console.log("upgrade needed");
-  // const db = event.target?.addEventListener
+  const db = (event.target as IDBOpenDBRequest).result;
+  console.log({event})
 
-  // const tokensStore = db.createObjectStore("tokens", {
-  //   keyPath: "token",
-  // });
+  const tokensStore = db.createObjectStore("tokens", {
+    keyPath: "token",
+  });
 
-  // const transaction: IDBTransaction = tokensStore.transaction;
-  // await unwrap(transaction);
+  const transaction: IDBTransaction = tokensStore.transaction;
+  await unwrap(transaction);
 };
 
 const db = await unwrap(request);
@@ -23,9 +24,10 @@ console.log(db);
 
 // const request = indexedDB.open("boiadeh", 2);
 
-// request.onerror = (event) => {
-//   Handle errors.
-// };
+// // request.onerror = (event) => {
+// //   Handle errors.
+// // };
+
 // request.onupgradeneeded = (event) => {
 //   console.log("cane");
 //   const db = event.target.result;
