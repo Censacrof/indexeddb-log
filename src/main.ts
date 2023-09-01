@@ -2,7 +2,7 @@ import { unwrap } from "./unwrap";
 
 export { };
 
-const request = window.indexedDB.open("MyTestDatabase", 1);
+const request = window.indexedDB.open("MyTestDatabase", 2);
 
 request.onupgradeneeded = async (event) => {
   console.log("upgrade needed");
@@ -20,24 +20,52 @@ request.onupgradeneeded = async (event) => {
   });
   
   logStore.createIndex("date", "date");
+  logStore.createIndex("level", "level");
 
   await unwrap(logStore.transaction);
 };
 
 const db = await unwrap(request);
 
-const log = async (message: string) => {
+const log = async (message: string, level: "debug" | "info" | "error" = "info") => {
   const transaction = db.transaction(["logs"], "readwrite");
   const logStore = transaction.objectStore("logs");
 
   await unwrap(logStore.add({
     date: new Date(),
+    level,
     message
   }))
 
-  console.log(message)
+  console.log(`[${level}] ${message}`)
 }
 
 
 await log("ciao!!");
 
+
+
+const getAllLogs = async () => {
+  return new Promise((resolve) => {
+    const transaction = db.transaction(["logs"], "readwrite");
+
+    const logsStore = transaction.objectStore("logs");
+  
+    const res: string[] = [];
+    logsStore.openCursor().onsuccess = (event) => {
+      
+      const cursor: IDBCursorWithValue | null=  (event.target as IDBRequest).result;
+
+      if (!cursor) {
+        resolve(res)
+        return;
+      }
+
+      res.push(cursor.value)
+      cursor.continue()
+    }
+  })  
+}
+
+
+console.log(">>>", await getAllLogs());
