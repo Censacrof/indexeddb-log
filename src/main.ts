@@ -18,7 +18,19 @@ request.onupgradeneeded = async (event) => {
 };
 
 const db = await unwrap(request);
-console.log(db);
+
+const transaction = db.transaction(["tokens"], "readwrite");
+
+const tokensStore = transaction.objectStore("tokens");
+
+const res = await unwrap(tokensStore.add({
+  token: "gigiiii",
+  asdasdasd: "fuffo"
+}));
+
+console.log({res})
+
+
 
 // const dbName = "the_name";
 
