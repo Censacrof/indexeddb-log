@@ -4,7 +4,7 @@ import { unwrap } from "./unwrap";
 
 const logQueue = new AsyncQueue();
 
-onmessage = async (e) => {
+onmessage = (e) => {
   logQueue.push(e.data);
 };
 
