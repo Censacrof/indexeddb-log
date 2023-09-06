@@ -47,6 +47,10 @@ const log = async (
 };
 
 (window as any).writeBenchmark = async () => {
+  document
+    .querySelector("button#startWriteBenchmark")
+    ?.setAttribute("disabled", "true");
+
   document.querySelector(
     "#logSize"
   )!.textContent = `LOG entry size: ${LONG_STRING.length}B`;
