@@ -47,10 +47,11 @@ const LONG_STRING =
     // console.log(`[${level}] ${message}`);
   };
 
-  (window as any).writeBenchmark = async () => {
-    document
-      .querySelector("button#startWriteBenchmark")
-      ?.setAttribute("disabled", "true");
+  const startWriteBenchmarkButton: HTMLButtonElement | null =
+    document.querySelector("button#startWriteBenchmark");
+
+  startWriteBenchmarkButton?.addEventListener("click", async () => {
+    startWriteBenchmarkButton?.setAttribute("disabled", "true");
 
     document.querySelector(
       "#logSize"
@@ -89,7 +90,7 @@ const LONG_STRING =
     document.querySelector("#avg")!.textContent = `AVG w/s: ${totalAvg.toFixed(
       2
     )}`;
-  };
+  });
 
   // // const getAllLogs = () => {
   // //   return new Promise((resolve) => {
