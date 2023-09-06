@@ -1,9 +1,28 @@
+import { AsyncQueue } from "./asyncQueue";
 import { logIndexedDb } from "./logIndexedDb";
 import { unwrap } from "./unwrap";
 
-onmessage = async (e) => {
-  const transaction = logIndexedDb.transaction(["logs"], "readwrite");
-  const logStore = transaction.objectStore("logs");
+const logQueue = new AsyncQueue();
 
-  await unwrap(logStore.add(e.data));
+onmessage = async (e) => {
+  logQueue.push(e.data);
+};
+
+(async () => {
+  try {
+    while (true) {
+      const logData = await logQueue.pop();
+
+      const transaction = logIndexedDb.transaction(["logs"], "readwrite");
+      const logStore = transaction.objectStore("logs");
+
+      await unwrap(logStore.add(logData));
+    }
+  } catch (e) {
+    console.error(e);
+  }
+})();
+
+onerror = (e) => {
+  console.error(e);
 };
