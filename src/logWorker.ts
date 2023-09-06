@@ -8,7 +8,7 @@ onmessage = (e) => {
   logQueue.push(e.data);
 };
 
-(async () => {
+new Promise(async () => {
   try {
     while (true) {
       const logData = await logQueue.pop();
@@ -21,7 +21,7 @@ onmessage = (e) => {
   } catch (e) {
     console.error(e);
   }
-})();
+});
 
 onerror = (e) => {
   console.error(e);
