@@ -7,7 +7,6 @@ const echoError = (e: unknown) => console.error("[logWorker]", e);
 const logQueue = new AsyncQueue();
 
 onmessage = (e) => {
-  // console.log(e.data);
   logQueue.push(e.data);
 };
 
@@ -18,7 +17,6 @@ onerror = echoError;
 
   while (true) {
     const logData = await logQueue.pop();
-    console.log("brazorf");
     const transaction = logIndexedDb.transaction(["logs"], "readwrite");
     const logStore = transaction.objectStore("logs");
 
