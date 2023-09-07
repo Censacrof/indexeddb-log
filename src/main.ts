@@ -1,4 +1,3 @@
-import { AsyncQueue } from "./asyncQueue";
 import { getLogIndexedDb } from "./logIndexedDb";
 import LogWorker from "./logWorker?worker";
 import { unwrap } from "./unwrap";
@@ -40,13 +39,12 @@ const LONG_STRING =
 
   startWriteBenchmarkWithWorkerButton?.addEventListener("click", async () => {
     const logWorker = new LogWorker();
-    const logQueue = new AsyncQueue();
 
     const log = (
       message: string,
       level: "debug" | "info" | "error" = "info"
     ) => {
-      logQueue.push({
+      logWorker.postMessage({
         date: new Date(),
         level,
         message,
@@ -56,15 +54,6 @@ const LONG_STRING =
         resolve();
       });
     };
-
-    (async () => {
-      while (true) {
-        logWorker.postMessage(await logQueue.pop());
-        await new Promise<void>((resolve) => {
-          resolve();
-        });
-      }
-    })();
 
     await benchmark(log);
   });
