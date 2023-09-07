@@ -1,5 +1,5 @@
+import LogWorker from "../logWorker?worker";
 import { LogBuilder } from "./logBuilder";
-import LogWorker from "./logWorker?worker";
 
 const logWorker = new LogWorker();
 
