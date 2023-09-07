@@ -49,7 +49,7 @@ const disableButtons = () => {
     const log = getPersistentLogBuilder().build();
     console.log(log);
 
-    await benchmark((message) => log.info(message));
+    await benchmark(log.info);
   });
 
   // // const getAllLogs = () => {
