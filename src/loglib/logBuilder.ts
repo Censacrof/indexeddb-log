@@ -52,6 +52,7 @@ export class LogBuilder {
   clone() {
     const cloned = new LogBuilder();
 
+    cloned.baseLogInstance = this.baseLogInstance;
     cloned.tags = [...this.tags];
     cloned.middlewares = [...this.middlewares];
 
