@@ -1,5 +1,5 @@
 import { AsyncQueue } from "./asyncQueue";
-import { logIndexedDb } from "./logIndexedDb";
+import { getLogIndexedDb } from "./logIndexedDb";
 import LogWorker from "./logWorker?worker";
 import { unwrap } from "./unwrap";
 
@@ -19,6 +19,8 @@ const LONG_STRING =
       message: string,
       level: "debug" | "info" | "error" = "info"
     ) => {
+      const logIndexedDb = await getLogIndexedDb();
+
       const transaction = logIndexedDb.transaction(["logs"], "readwrite");
       const logStore = transaction.objectStore("logs");
 

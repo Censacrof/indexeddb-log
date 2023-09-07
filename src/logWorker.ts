@@ -1,5 +1,5 @@
 import { AsyncQueue } from "./asyncQueue";
-import { logIndexedDb } from "./logIndexedDb";
+import { getLogIndexedDb } from "./logIndexedDb";
 import { unwrap } from "./unwrap";
 
 const logQueue = new AsyncQueue();
@@ -8,19 +8,19 @@ onmessage = (e) => {
   logQueue.push(e.data);
 };
 
-new Promise(async () => {
-  try {
+new Promise(() => {
+  getLogIndexedDb().then((logIndexedDb) => {
     while (true) {
-      const logData = await logQueue.pop();
+      logQueue.pop().then((logData) => {
+        const transaction = logIndexedDb.transaction(["logs"], "readwrite");
+        const logStore = transaction.objectStore("logs");
 
-      const transaction = logIndexedDb.transaction(["logs"], "readwrite");
-      const logStore = transaction.objectStore("logs");
-
-      await unwrap(logStore.add(logData));
+        unwrap(logStore.add(logData)).catch((e) => {
+          console.error("[logWorker] coldn't add log to indexeddb", e);
+        });
+      });
     }
-  } catch (e) {
-    console.error(e);
-  }
+  });
 });
 
 onerror = (e) => {
