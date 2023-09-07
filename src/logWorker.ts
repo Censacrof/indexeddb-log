@@ -2,27 +2,26 @@ import { AsyncQueue } from "./asyncQueue";
 import { getLogIndexedDb } from "./logIndexedDb";
 import { unwrap } from "./unwrap";
 
+const echoError = (e: unknown) => console.error("[logWorker]", e);
+
 const logQueue = new AsyncQueue();
 
 onmessage = (e) => {
+  // console.log(e.data);
   logQueue.push(e.data);
 };
 
-new Promise(() => {
-  getLogIndexedDb().then((logIndexedDb) => {
-    while (true) {
-      logQueue.pop().then((logData) => {
-        const transaction = logIndexedDb.transaction(["logs"], "readwrite");
-        const logStore = transaction.objectStore("logs");
+onerror = echoError;
 
-        unwrap(logStore.add(logData)).catch((e) => {
-          console.error("[logWorker] coldn't add log to indexeddb", e);
-        });
-      });
-    }
-  });
-});
+(async () => {
+  const logIndexedDb = await getLogIndexedDb();
 
-onerror = (e) => {
-  console.error(e);
-};
+  while (true) {
+    const logData = await logQueue.pop();
+    console.log("brazorf");
+    const transaction = logIndexedDb.transaction(["logs"], "readwrite");
+    const logStore = transaction.objectStore("logs");
+
+    await unwrap(logStore.add(logData)).catch(echoError);
+  }
+})();
