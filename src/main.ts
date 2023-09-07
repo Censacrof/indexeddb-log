@@ -1,5 +1,5 @@
 import { getLogIndexedDb } from "./logIndexedDb";
-import LogWorker from "./logWorker?worker";
+import { getPersistentLogBuilder } from "./loglib/persistentLogBuilder";
 import { unwrap } from "./unwrap";
 
 const LONG_STRING =
@@ -46,24 +46,10 @@ const disableButtons = () => {
   startWriteBenchmarkWithWorkerButton?.addEventListener("click", async () => {
     disableButtons();
 
-    const logWorker = new LogWorker();
+    const log = getPersistentLogBuilder().build();
+    console.log(log);
 
-    const log = (
-      message: string,
-      level: "debug" | "info" | "error" = "info"
-    ) => {
-      logWorker.postMessage({
-        date: new Date(),
-        level,
-        message,
-      });
-
-      return new Promise<void>((resolve) => {
-        resolve();
-      });
-    };
-
-    await benchmark(log);
+    await benchmark((message) => log.info(message));
   });
 
   // // const getAllLogs = () => {
@@ -91,8 +77,13 @@ const disableButtons = () => {
   // // console.log(">>>", await getAllLogs());
 })();
 
+type MaybePromise<T> = T | Promise<T>;
+
 async function benchmark(
-  log: (message: string, level?: "debug" | "info" | "error") => Promise<void>
+  log: (
+    message: string,
+    level?: "debug" | "info" | "error"
+  ) => MaybePromise<void>
 ) {
   document.querySelector(
     "#logSize"
