@@ -3,13 +3,19 @@ import { Log } from "./log";
 type MiddlewareFn = (data: unknown[], level: keyof Log, tags: string[]) => void;
 
 export class LogBuilder {
+  private baseLogInstance: Log = console;
   private tags: string[] = [];
-
   private middlewares: MiddlewareFn[] = [];
+
   private runMiddlewares(data: unknown[], level: keyof Log) {
     this.middlewares.forEach((middleware) => {
       middleware(data, level, this.tags);
     });
+  }
+
+  baseLog(log: Log) {
+    this.baseLogInstance = log;
+    return this;
   }
 
   tag(tag: string) {
@@ -26,26 +32,29 @@ export class LogBuilder {
     return {
       trace: (...data) => {
         this.runMiddlewares(data, "trace");
-        console.trace(...data);
+        this.baseLogInstance.trace(...data);
       },
       info: (...data) => {
         this.runMiddlewares(data, "info");
-        console.info(...data);
+        this.baseLogInstance.info(...data);
       },
       warn: (...data) => {
         this.runMiddlewares(data, "warn");
-        console.warn(...data);
+        this.baseLogInstance.warn(...data);
       },
       error: (...data) => {
         this.runMiddlewares(data, "error");
-        console.error(...data);
+        this.baseLogInstance.error(...data);
       },
     };
   }
 
   clone() {
-    return {
-      ...this,
-    };
+    const cloned = new LogBuilder();
+
+    cloned.tags = [...this.tags];
+    cloned.middlewares = [...this.middlewares];
+
+    return cloned;
   }
 }
