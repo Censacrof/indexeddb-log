@@ -20,6 +20,6 @@ onerror = echoError;
     const transaction = logIndexedDb.transaction(["logs"], "readwrite");
     const logStore = transaction.objectStore("logs");
 
-    await unwrap(logStore.add(logData)).catch(echoError);
+    await unwrap(logStore.add(logData));
   }
 })();
