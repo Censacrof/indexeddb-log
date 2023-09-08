@@ -1,7 +1,7 @@
 type LogFn = (...data: unknown[]) => void;
 
 export interface Log {
-  trace: LogFn;
+  debug: LogFn;
   info: LogFn;
   warn: LogFn;
   error: LogFn;
