@@ -3,7 +3,7 @@ import { LogBuilder } from "./logBuilder";
 
 const logWorker = new LogWorker();
 
-const persistentLogBuilder = new LogBuilder().middleware(
+const persistentLogBuilder = new LogBuilder().addTransport(
   (data, level, tags) => {
     logWorker.postMessage({
       date: new Date(),
@@ -12,6 +12,6 @@ const persistentLogBuilder = new LogBuilder().middleware(
       data,
     });
   }
-);
+).baseLog(console);
 
 export const getPersistentLogBuilder = () => persistentLogBuilder.clone();

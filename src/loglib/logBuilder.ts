@@ -1,14 +1,14 @@
 import { Log } from "./log";
 
-type MiddlewareFn = (data: unknown[], level: keyof Log, tags: string[]) => void;
+type TransportFn = (data: unknown[], level: keyof Log, tags: string[]) => void;
 
 export class LogBuilder {
   private baseLogInstance: Log = console;
   private tags: string[] = [];
-  private middlewares: MiddlewareFn[] = [];
+  private transports: TransportFn[] = [];
 
-  private runMiddlewares(data: unknown[], level: keyof Log) {
-    this.middlewares.forEach((middleware) => {
+  private logUsingTransports(data: unknown[], level: keyof Log) {
+    this.transports.forEach((middleware) => {
       middleware(data, level, this.tags);
     });
   }
@@ -18,32 +18,42 @@ export class LogBuilder {
     return this;
   }
 
-  tag(tag: string) {
+  withTags(tag: string) {
     this.tags = [...this.tags, tag];
     return this;
   }
 
-  middleware(middleware: MiddlewareFn) {
-    this.middlewares = [...this.middlewares, middleware];
+  withTimestamp(){
+    //
+    return this;
+  }
+
+  withPerformance(){
+    //
+    return this
+  }
+
+  addTransport(transport: TransportFn) {
+    this.transports = [...this.transports, transport];
     return this;
   }
 
   build(): Log {
     return {
-      trace: (...data) => {
-        this.runMiddlewares(data, "trace");
-        this.baseLogInstance.trace(...data);
+      debug: (...data) => { // this is not what we mean: https://developer.mozilla.org/en-US/docs/Web/API/console/trace
+        this.logUsingTransports(data, "debug");
+        this.baseLogInstance.debug(...data);
       },
       info: (...data) => {
-        this.runMiddlewares(data, "info");
+        this.logUsingTransports(data, "info");
         this.baseLogInstance.info(...data);
       },
       warn: (...data) => {
-        this.runMiddlewares(data, "warn");
+        this.logUsingTransports(data, "warn");
         this.baseLogInstance.warn(...data);
       },
       error: (...data) => {
-        this.runMiddlewares(data, "error");
+        this.logUsingTransports(data, "error");
         this.baseLogInstance.error(...data);
       },
     };
@@ -54,7 +64,7 @@ export class LogBuilder {
 
     cloned.baseLogInstance = this.baseLogInstance;
     cloned.tags = [...this.tags];
-    cloned.middlewares = [...this.middlewares];
+    cloned.transports = [...this.transports];
 
     return cloned;
   }
